@@ -28,7 +28,6 @@ then we can find adversarial examples that the model classifies as "E", "V",
 
 
 # TODO
-* Install Python libraries: numpy, tensorflow, matplotlib, jupyter
 * Process EMNIST data
 * Decide on classifier architecture and implement it
 * Implement AdvGAN detailed in 
