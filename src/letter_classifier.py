@@ -42,30 +42,33 @@ class LetterClassifier(object):
             [-1, self.config['img_height'], self.config['img_width'], 1])
 
         # Try 1: just a one-layer NN
-        input_flat = tf.reshape(input_layer, 
-            [-1, self.config['img_height'] * self.config['img_width']])
-        predicted = tf.layers.dense(input_flat, self.config['num_classes'],
-            activation=self.activation_map[self.config['output_activation']])
+        # input_flat = tf.reshape(input_layer, 
+        #     [-1, self.config['img_height'] * self.config['img_width']])
+        # predicted = tf.layers.dense(input_flat, self.config['num_classes'],
+        #     activation=self.activation_map[self.config['output_activation']])
         
 
         # Try 2: basic CNN
-        # conv1 = tf.layers.conv2d(
-        #     inputs=input_layer,
-        #     filters=32,
-        #     kernel_size=[5, 5],
-        #     padding="same",
-        #     activation=tf.nn.relu)
-        # pool1 = tf.layers.max_pooling2d(inputs=conv1, pool_size=[2, 2], strides=2)
-        # conv2 = tf.layers.conv2d(
-        #     inputs=pool1,
-        #     filters=64,
-        #     kernel_size=[5, 5],
-        #     padding="same",
-        #     activation=tf.nn.relu)
-        # pool2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[2, 2], strides=2)
-        # pool2_flat = tf.reshape(pool2, [-1, 7 * 7 * 64])
-        # dense = tf.layers.dense(inputs=pool2_flat, units=1024, activation=tf.nn.relu)
-        # predicted = tf.layers.dense(inputs=dense, units=26)
+        conv1 = tf.layers.conv2d(
+            inputs=input_layer,
+            filters=self.config['conv1_num_filters'],
+            kernel_size=self.config['kernel_size'],
+            padding='same',
+            activation=self.config['activation'])
+        pool1 = tf.layers.max_pooling2d(inputs=conv1, 
+            pool_size=self.config['pool_size'], strides=2)
+        conv2 = tf.layers.conv2d(
+            inputs=pool1,
+            filters=self.config['conv2_num_filters'],
+            kernel_size=self.config['kernel_size'],
+            padding='same',
+            activation=self.config['activation'])
+        pool2 = tf.layers.max_pooling2d(inputs=conv2, 
+            pool_size=self.config['pool_size'], strides=2)
+        pool2_flat = tf.reshape(pool2, [-1, self.config['pool2_output_dim']])
+        dense = tf.layers.dense(inputs=pool2_flat, 
+            units=self.config['dense_dim'], activation=self.config['activation'])
+        predicted = tf.layers.dense(inputs=dense, units=self.config['num_classes'])
         return predicted
 
     def add_loss_op(self, predicted):
@@ -120,6 +123,7 @@ class LetterClassifier(object):
         dev_X = train_dev_X[dev_indices, :]
         dev_y = train_dev_y[dev_indices, :]
         for i in range(self.config['epochs']):
+            print('\nEpoch {} of {}:'.format(i + 1, self.config['epochs']))
             self.run_epoch(sess, train_X, train_y, dev_X, dev_y)
 
 # Remember to store the model!
