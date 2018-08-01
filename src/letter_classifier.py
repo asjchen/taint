@@ -126,7 +126,9 @@ class LetterClassifier(object):
             print('\nEpoch {} of {}:'.format(i + 1, self.config['epochs']))
             self.run_epoch(sess, train_X, train_y, dev_X, dev_y)
 
-# Remember to store the model!
+# TODO: evaluate on the test set!
+# TODO: Remember to store the model!
+
 
 
 

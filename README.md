@@ -1,7 +1,9 @@
 # Taint
 ## Andy Chen
 
-An exploratory project primarily inspired by two ideas:
+## Introduction
+
+This is an exploratory project primarily inspired by two ideas:
 * Current deep learning models are, in a sense, fragile. Imagine a trained 
 image classifier on animals, with excellent performance on a test set. If we 
 take a correctly identified image of a lion and tweak the pixels in a strategic
@@ -26,12 +28,30 @@ have correctly identified images of the letters "G", "O", "O", and "D",
 then we can find adversarial examples that the model classifies as "E", "V",
 "I", and "L". 
 
+## Requirements
+* Python 3.6 (currently, Tensorflow does not support later versions of Python)
+* Pip
+
+
+## How to Use
+First, install the required Python 3 libraries with pip:
+```
+pip install -r requirements.txt
+```
+Then, download the EMNIST letters dataset; visit the Kaggle dataset page and
+download the `emnist-letters-train.csv` and `emnist-letters-train.csv` files. 
+
+Now, from the repository root directory, run:
+```
+python src/emnist.py emnist-letters-train.csv emnist-letters-test.csv
+```
+
 
 # TODO
-* Process EMNIST data
-* Decide on classifier architecture and implement it
+* Take custom image input and convert to same format as in EMNIST
 * Implement AdvGAN detailed in 
 [_Generating Adversarial Examples with Adversarial Networks_](https://arxiv.org/pdf/1801.02610.pdf)
+* Refine classifier architecture to improve its accuracy
 
 
 
