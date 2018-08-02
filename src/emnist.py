@@ -8,7 +8,7 @@ from letter_classifier import LetterClassifier
 
 def emnist_csv_to_xy(file_stream, img_height=28, img_width=28, num_classes=26):
     raw_data = pd.read_csv(file_stream, header=None)
-    X_flat = raw_data.values[:, 1:] / 256
+    X_flat = raw_data.values[:, 1:] / 255
     assert img_height * img_width == X_flat.shape[1]
     X = X_flat.reshape(X_flat.shape[0], img_height, img_width) 
     y_classes = raw_data.values[:, 0] - 1
@@ -32,7 +32,7 @@ def main():
         'batch_size': 2000,
         'log_per': 10000,
         'epochs': 20,
-        'learning_rate': 0.005, # 0.001
+        'learning_rate': 0.005, 
         'activation': 'relu',
         'kernel_size': [5, 5],
         'pool_size': [2, 2],
