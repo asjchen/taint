@@ -26,9 +26,9 @@ class LetterClassifier(object):
         self.train_op = self.add_training_op(self.loss)
 
     def add_placeholders(self):
-        self.input_placeholder = tf.placeholder(tf.float32, 
+        self.input_placeholder = tf.placeholder(tf.float64, 
             shape=(None, self.config['img_height'], self.config['img_width']))
-        self.label_placeholder = tf.placeholder(tf.float32, 
+        self.label_placeholder = tf.placeholder(tf.float64, 
             shape=(None, self.config['num_classes']))
 
     def create_feed_dict(self, input_batch, label_batch=None):
@@ -41,34 +41,39 @@ class LetterClassifier(object):
         input_layer = tf.reshape(self.input_placeholder, 
             [-1, self.config['img_height'], self.config['img_width'], 1])
 
-        # Try 1: just a one-layer NN
-        # input_flat = tf.reshape(input_layer, 
-        #     [-1, self.config['img_height'] * self.config['img_width']])
-        # predicted = tf.layers.dense(input_flat, self.config['num_classes'],
-        #     activation=self.activation_map[self.config['output_activation']])
+        if self.config['name'] == 'single_layer':
+            # Try 1: just a one-layer NN
+            input_flat = tf.reshape(input_layer, 
+                [-1, self.config['img_height'] * self.config['img_width']])
+            predicted = tf.layers.dense(input_flat, self.config['num_classes'],
+                activation=self.activation_map[self.config['output_activation']])
         
-
-        # Try 2: basic CNN
-        conv1 = tf.layers.conv2d(
-            inputs=input_layer,
-            filters=self.config['conv1_num_filters'],
-            kernel_size=self.config['kernel_size'],
-            padding='same',
-            activation=self.config['activation'])
-        pool1 = tf.layers.max_pooling2d(inputs=conv1, 
-            pool_size=self.config['pool_size'], strides=2)
-        conv2 = tf.layers.conv2d(
-            inputs=pool1,
-            filters=self.config['conv2_num_filters'],
-            kernel_size=self.config['kernel_size'],
-            padding='same',
-            activation=self.config['activation'])
-        pool2 = tf.layers.max_pooling2d(inputs=conv2, 
-            pool_size=self.config['pool_size'], strides=2)
-        pool2_flat = tf.reshape(pool2, [-1, self.config['pool2_output_dim']])
-        dense = tf.layers.dense(inputs=pool2_flat, 
-            units=self.config['dense_dim'], activation=self.config['activation'])
-        predicted = tf.layers.dense(inputs=dense, units=self.config['num_classes'])
+        elif self.config['name'] == 'cnn_two_layer':
+            # Try 2: basic CNN
+            conv1 = tf.layers.conv2d(
+                inputs=input_layer,
+                filters=self.config['conv1_num_filters'],
+                kernel_size=self.config['kernel_size'],
+                padding='same',
+                activation=self.config['activation'])
+            pool1 = tf.layers.max_pooling2d(inputs=conv1, 
+                pool_size=self.config['pool_size'], strides=2)
+            conv2 = tf.layers.conv2d(
+                inputs=pool1,
+                filters=self.config['conv2_num_filters'],
+                kernel_size=self.config['kernel_size'],
+                padding='same',
+                activation=self.config['activation'])
+            pool2 = tf.layers.max_pooling2d(inputs=conv2, 
+                pool_size=self.config['pool_size'], strides=2)
+            pool2_flat = tf.reshape(pool2, [-1, self.config['pool2_output_dim']])
+            dense = tf.layers.dense(inputs=pool2_flat, 
+                units=self.config['dense_dim'], activation=self.config['activation'])
+            predicted = tf.layers.dense(inputs=dense, units=self.config['num_classes'])
+        
+        else:
+            raise Exception('Wrong config name for classifier.')
+        
         return predicted
 
     def add_loss_op(self, predicted):
@@ -108,8 +113,6 @@ class LetterClassifier(object):
             if curr_log_cnt != prev_log_cnt:
                 print('Trained on {}/{} with current loss {}'.format(
                     idx, train_X.shape[0], loss))
-            
-
         dev_loss, dev_accuracy = self.measure_performance(sess, dev_X, dev_y)
         print('Dev Loss: {}\nDev Accuracy: {}'.format(dev_loss, dev_accuracy))
 
@@ -126,7 +129,13 @@ class LetterClassifier(object):
             print('\nEpoch {} of {}:'.format(i + 1, self.config['epochs']))
             self.run_epoch(sess, train_X, train_y, dev_X, dev_y)
 
-# TODO: evaluate on the test set!
+    def eval(self, sess, unknown_X):
+        feed = self.create_feed_dict(unknown_X)
+        raw_predict = sess.run([self.pred], feed_dict=feed)[0]
+        pred_classes = np.argmax(raw_predict, axis=1)
+        return pred_classes
+        
+
 # TODO: Remember to store the model!
 
 

@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd 
 import tensorflow as tf
 from letter_classifier import LetterClassifier
+from hyperparams import CLASSIFIER_CONFIGS
 
 def emnist_csv_to_xy(file_stream, img_height=28, img_width=28, num_classes=26):
     raw_data = pd.read_csv(file_stream, header=None)
@@ -23,24 +24,15 @@ def main():
         help='File for the EMNIST training dataset')
     parser.add_argument('test_file', type=argparse.FileType('r'),
         help='File for the EMNIST testing dataset')
+    parser.add_argument('-a', '--architecture', 
+        choices=CLASSIFIER_CONFIGS.keys(), default='cnn_two_layer',
+        help='Classifier architecture to be used, one of {}'.format(
+            CLASSIFIER_CONFIGS.keys()))
+    
     args = parser.parse_args()
     train_X, train_y = emnist_csv_to_xy(args.train_file)
-    config = { 
-        'img_height': 28, 
-        'img_width': 28,
-        'num_classes': 26,
-        'batch_size': 2000,
-        'log_per': 10000,
-        'epochs': 20,
-        'learning_rate': 0.005, 
-        'activation': 'relu',
-        'kernel_size': [5, 5],
-        'pool_size': [2, 2],
-        'conv1_num_filters': 32,
-        'conv2_num_filters': 64,
-        'pool2_output_dim': 7 * 7 * 64,
-        'dense_dim': 1024
-    }
+    test_X, test_y = emnist_csv_to_xy(args.test_file)
+    config = CLASSIFIER_CONFIGS[args.architecture]
 
     with tf.Graph().as_default():
         classifier = LetterClassifier(config)
@@ -48,6 +40,11 @@ def main():
         with tf.Session() as session:
             session.run(init)
             classifier.train(session, train_X, train_y)
+            
+            test_pred_classes = classifier.eval(session, test_X)
+            test_actual_classes = np.argmax(test_y, axis=1)
+            num_same = np.sum(test_actual_classes == test_pred_classes)
+            print('Test Accuracy: {}'.format(num_same / test_y.shape[0]))
 
 if __name__ == '__main__':
     main()

@@ -54,9 +54,10 @@ with a Generative Adversarial Network
 # TODO
 * Take custom image input and convert to same format as in EMNIST
 * Save the Tensorflow model for future use
+* Add dropout to classifier
 * Implement AdvGAN detailed in 
 [_Generating Adversarial Examples with Adversarial Networks_](https://arxiv.org/pdf/1801.02610.pdf)
-* Refine classifier architecture to improve its accuracy
+* Further refine classifier architecture to improve its accuracy
 * Comment functions more thoroughly
 
 
