@@ -21,7 +21,7 @@ CLASSIFIER_CONFIGS = {
         'num_classes': 26,
         'batch_size': 2000,
         'log_per': 10000,
-        'epochs': 3, #20
+        'epochs': 20,
         'learning_rate': 0.005, 
         'activation': 'relu',
         'kernel_size': [5, 5],
