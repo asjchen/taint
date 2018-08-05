@@ -60,8 +60,10 @@ def main():
         help='File for the EMNIST testing dataset')
     parser.add_argument('-a', '--architecture', 
         choices=CLASSIFIER_CONFIGS.keys(), default='cnn_two_layer',
-        help='Classifier architecture to be used, one of {}'.format(
-            CLASSIFIER_CONFIGS.keys()))
+        help=('Classifier architecture to be used, one of {}, default '
+            'is cnn_two_layer'.format(list(CLASSIFIER_CONFIGS.keys()))))
+    parser.add_argument('-s', '--save_path', default='tmp/model.ckpt',
+        help='Path to store TF model checkpoint')
 
     args = parser.parse_args()
     train_X, train_y = emnist_csv_to_xy(args.train_file)
@@ -71,9 +73,11 @@ def main():
     with tf.Graph().as_default():
         classifier = LetterClassifier(config)
         init = tf.global_variables_initializer()
+        saver = tf.train.Saver()
         with tf.Session() as session:
             session.run(init)
             classifier.train(session, train_X, train_y)
+            save_path = saver.save(session, args.save_path)
             
             test_pred_classes = classifier.eval(session, test_X)
             test_actual_classes = np.argmax(test_y, axis=1)
