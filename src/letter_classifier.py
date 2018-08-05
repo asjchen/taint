@@ -6,16 +6,27 @@ import random
 import numpy as np
 import tensorflow as tf
 
-# Note: place the hyperparams in a JSON somewhere else, 
-# - img_height
-# - img_width
-# - num_classes
-# - epochs
-# - learning_rate
-# - batch_size
-
 class LetterClassifier(object):
+    """
+    Represents a classifier for identifying a letter of the alphabet given
+    a grayscale image, a 2D array/tensor with values in [0, 1]. Used to 
+    train and evaluate a classifier model.
+
+    """
+
     def __init__(self, config):
+        """
+        Initializes the LetterClassifier object with a configuration
+
+        Args:
+            config: a dictionary containing hyperparameters and settings such
+            as img_height, img_width, num_classes (26 for just identifying
+            letters), epochs, learning_rate, batch_size, etc.
+
+        Returns:
+            None
+
+        """
         self.config = config
         self.activation_map = {
             'relu': tf.nn.relu
@@ -26,18 +37,62 @@ class LetterClassifier(object):
         self.train_op = self.add_training_op(self.loss)
 
     def add_placeholders(self):
+        """
+        Adds the placeholders (inputs and one-hot label vectors) to the TF
+        graph, as these change from batch to batch. Note that the inputs have
+        dimension [None, img_height, img_width] and the label vectors have
+        dimension [None, num_classes].
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
         self.input_placeholder = tf.placeholder(tf.float64, 
             shape=(None, self.config['img_height'], self.config['img_width']))
         self.label_placeholder = tf.placeholder(tf.float64, 
             shape=(None, self.config['num_classes']))
 
     def create_feed_dict(self, input_batch, label_batch=None):
+        """
+        Constructs the feed dictionary, which consists of the input batch as
+        well as the label vectors (in training and evaluation).
+
+        Args:
+            input_batch: a 3D array of dimensions [None, img_height, img_width]
+            that represents part of the data inputs. The first dimension
+            is often the batch_size.
+
+            label_batch: a 2D array of dimensions [None, num_classes] that
+            represents part of the data labels. The first dimension is often
+            the batch_size.
+
+        Returns:
+            A dictionary representing the feed dictionary to the TF graph,
+            starting the computation in the graph
+
+        """
         feed_dict = { self.input_placeholder: input_batch }
         if label_batch is not None:
             feed_dict.update({ self.label_placeholder: label_batch })
         return feed_dict
 
     def add_prediction_op(self):
+        """
+        Given the input placeholder, produces the tensor representing the 
+        model's predictions of the inputs' classes. The architectures
+        supported are the names in CLASSIFIER_CONFIGS in hyperparams.py
+
+        Args:
+            None
+
+        Returns:
+            A tensor/operation representing the logged probabilities for 
+            each class
+
+        """
         input_layer = tf.reshape(self.input_placeholder, 
             [-1, self.config['img_height'], self.config['img_width'], 1])
 
@@ -77,18 +132,59 @@ class LetterClassifier(object):
         return predicted
 
     def add_loss_op(self, predicted):
+        """
+        Given the predicted log probabilities (and the labels placeholder),
+        calculates the average cross entropy loss.
+
+        Args:
+            predicted: tensor representing the logged probabilities for each 
+            class, from self.add_prediction_op()
+
+        Returns:
+            A float tensor/operation representing the loss (average over the 
+            batch)
+
+        """
         loss = tf.nn.softmax_cross_entropy_with_logits_v2(
             logits=predicted, labels=self.label_placeholder)
         loss = tf.reduce_mean(loss)
         return loss
 
     def add_training_op(self, loss):
+        """
+        Updates the appropriate variables based on the current loss, as per
+        gradient descent
+
+        Args:
+            loss: float tensor representing the loss over the current batch, 
+            from self.add_loss_op()
+
+        Returns:
+            An operation that updates the necessary variables
+        
+        """
         optimizer = tf.train.AdamOptimizer(
             learning_rate=self.config['learning_rate'])
         train_op = optimizer.minimize(loss)
         return train_op
 
     def measure_performance(self, sess, test_X, test_y):
+        """
+        Evaluates the model's performance on a labeled test/dev set
+
+        Args:
+            sess: a Tensorflow session
+
+            test_X: a NumPy array of dimensions [None, img_height, img_width]
+            representing the inputs of the test set
+
+            test_y: a NumPy array of dimensions [None, num_classes] consisting
+            of the one-hot label vectors of the test set
+
+        Returns:
+            An operation that updates the necessary variables
+        
+        """
         feed = self.create_feed_dict(test_X, label_batch=test_y)
         raw_predict, loss = sess.run(
             [self.pred, self.loss], feed_dict=feed)
@@ -102,6 +198,30 @@ class LetterClassifier(object):
         return loss, accuracy
 
     def run_epoch(self, sess, train_X, train_y, dev_X, dev_y):
+        """
+        Runs one epoch of training, which consists of iterating through
+        the entire training set in batches, predicting those batches' labels,
+        and updating the variables accordingly.
+
+        Args:
+            sess: a Tensorflow session
+
+            train_X: a NumPy array of dimensions [None, img_height, img_width]
+            representing the inputs of the training set
+
+            train_y: a NumPy array of dimensions [None, num_classes] consisting
+            of the one-hot label vectors of the training set
+
+            dev_X: a NumPy array of dimensions [None, img_height, img_width]
+            representing the inputs of the dev set
+
+            dev_y: a NumPy array of dimensions [None, num_classes] consisting
+            of the one-hot label vectors of the dev set
+
+        Returns:
+            None
+        
+        """
         for idx in range(0, train_X.shape[0], self.config['batch_size']):
             train_X_batch = train_X[idx: idx + self.config['batch_size'], :]
             train_y_batch = train_y[idx: idx + self.config['batch_size'], :]
@@ -117,6 +237,30 @@ class LetterClassifier(object):
         print('Dev Loss: {}\nDev Accuracy: {}'.format(dev_loss, dev_accuracy))
 
     def train(self, sess, train_dev_X, train_dev_y, prop_train=0.8):
+        """
+        Trains the model by running several epochs of training (calling 
+        run_epoch)
+
+        Args:
+            sess: a Tensorflow session
+
+            train_dev_X: a NumPy array of dimensions [None, img_height, 
+            img_width] representing the inputs of the combined training and 
+            dev set
+
+            train_dev_y: a NumPy array of dimensions [None, num_classes] 
+            consisting of the one-hot label vectors of the combined training 
+            and dev set
+
+            prop_train: the proportion of the combined training and dev data
+            that should be part of the training set (by default, the model 
+            trains on the first 80% of the data and evaluates on the remaining
+            20% of the data).
+
+        Returns:
+            None
+        
+        """
         indices = list(range(train_dev_X.shape[0]))
         random.shuffle(indices)
         train_indices = indices[: int(prop_train * len(indices))]
@@ -130,6 +274,21 @@ class LetterClassifier(object):
             self.run_epoch(sess, train_X, train_y, dev_X, dev_y)
 
     def eval(self, sess, unknown_X):
+        """
+        Predicts the classes for a new test set, whose labels are currently 
+        unknown
+
+        Args:
+            sess: a Tensorflow session
+
+            unknown_X: a NumPy array of dimensions [None, img_height, 
+            img_width] representing the inputs of the test set
+
+        Returns:
+            A NumPy (integer) array of dimensions [None], representing the 
+            classes of the rows in unknown_X
+        
+        """
         feed = self.create_feed_dict(unknown_X)
         raw_predict = sess.run([self.pred], feed_dict=feed)[0]
         pred_classes = np.argmax(raw_predict, axis=1)

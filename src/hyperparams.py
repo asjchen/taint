@@ -1,4 +1,6 @@
 # Hyperparameter Configurations for Classifier
+# For information about the architectures, check add_prediction_op() in 
+# letter_classifier.LetterClassifier
 
 CLASSIFIER_CONFIGS = {
     # Try 1: basic single dense layer network
