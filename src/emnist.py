@@ -14,7 +14,7 @@ def emnist_csv_to_xy(file_stream, img_height=28, img_width=28, num_classes=26):
     Args:
         file_stream: a file object to the EMNIST CSV file. The data should 
         not have headers and should most likely originate from the Kaggle 
-        EMNIST page: https://www.kaggle.com/crawford/emnist/version/3
+        EMNIST page: https://www.kaggle.com/crawford/emnist/
 
         img_height: the images' height, which should be the same for all of 
         the images. In EMNIST, this value is 28.
