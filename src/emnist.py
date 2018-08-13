@@ -73,7 +73,8 @@ def main():
     with tf.Graph().as_default():
         classifier = LetterClassifier(config)
         init = tf.global_variables_initializer()
-        saver = tf.train.Saver()
+        saver = tf.train.Saver(tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, 
+            scope='letter_classifier'))
         with tf.Session() as session:
             session.run(init)
             classifier.train(session, train_X, train_y)

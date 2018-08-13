@@ -30,7 +30,9 @@ then we can find adversarial examples that the model classifies as "E", "V",
 "I", and "L". This process is an example of a _targeted attack_ on the 
 classifier; we're trying to fool the classifier into thinking that our image
 is the letter G (rather than just trying to make the classifier wrong in 
-general).
+general). Since in this case the dataset is public knowledge, we use a 
+semi-whitebox attack (simpler than a black-box attack, but perhaps less in the 
+spirit of adversarial attacks).
 
 This project represents how machines may not have the same understanding of 
 concepts such as "good" and "evil" as us; small changes to a situation that 
@@ -51,19 +53,31 @@ pip install -r requirements.txt
 Then, download the EMNIST letters dataset; visit the Kaggle dataset page and
 download the `emnist-letters-train.csv` and `emnist-letters-train.csv` files. 
 
+Now, since the classifier and GAN should train on disjoint datasets, we split
+the data by running:
+```
+python src/split_data.py emnist-letters-train.csv 
+```
+You should then see two new files `emnist-letters-train-classifier.csv` and
+`emnist-letters-train-gan.csv`
+
 Now, from the repository root directory, run the following command:
 ```
-python src/emnist.py emnist-letters-train.csv emnist-letters-test.csv
+python src/emnist.py emnist-letters-train-classifier.csv emnist-letters-test.csv
 ```
 This will train an alphabet classifier model, which we will attempt to "fool"
 with a Generative Adversarial Network
 
 
 # TODO
-* Add dropout to classifier
 * Implement AdvGAN detailed in 
 [_Generating Adversarial Examples with Adversarial Networks_](https://arxiv.org/pdf/1801.02610.pdf)
+    * Implement discriminator
+    * Implement generator
+    * Implement training with GAN
+* Add dropout to classifier
 * Further refine classifier architecture to improve its accuracy
+* Clean up code -- there's similarities between LetterClassifier and GAN
 * Comment functions more thoroughly
 
 

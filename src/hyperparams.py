@@ -12,8 +12,8 @@ CLASSIFIER_CONFIGS = {
         'epochs': 20,
         'learning_rate': 0.001,
         'output_activation': 'relu',
-        'batch_size': 2000,
-        'log_per': 10000
+        'batch_size': 1000,
+        'log_per': 5000
     },
     # Try 2: CNN with two convolution+pooling layers, followed by a dense layer
     'cnn_two_layer': { 
@@ -21,9 +21,9 @@ CLASSIFIER_CONFIGS = {
         'img_height': 28, 
         'img_width': 28,
         'num_classes': 26,
-        'batch_size': 2000,
-        'log_per': 10000,
-        'epochs': 20,
+        'batch_size': 1000,
+        'log_per': 5000,
+        'epochs': 3, #10
         'learning_rate': 0.005, 
         'activation': 'relu',
         'kernel_size': [5, 5],
@@ -32,5 +32,22 @@ CLASSIFIER_CONFIGS = {
         'conv2_num_filters': 64,
         'pool2_output_dim': 7 * 7 * 64,
         'dense_dim': 1024
+    }
+}
+
+GAN_CONFIGS = {
+    'advgan': {
+        'name': 'advgan',
+        'img_height': 28, 
+        'img_width': 28,
+        'num_classes': 26,
+        'epochs': 20,
+        'learning_rate': 0.001,
+        'batch_size': 1000,
+        'log_per': 5000,
+        'gan_constant': 1,
+        'hinge_constant': 1,
+        'target_class': 12,
+        'noise_bound': 0.3,
     }
 }

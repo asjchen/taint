@@ -10,7 +10,10 @@ mpl.use('TkAgg')
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from letter_classifier import LetterClassifier
-from hyperparams import CLASSIFIER_CONFIGS
+from hyperparams import CLASSIFIER_CONFIGS, GAN_CONFIGS
+from adv_discriminator import AdvDiscriminator
+from adv_generator import AdvGenerator
+from advgan import AdvGAN
 
 def color_to_grayscale(image_filename):
     gray_img = Image.open(image_filename).convert('LA')
@@ -46,10 +49,14 @@ def main():
             'white on black background'))
     parser.add_argument('-d', '--display_image', action='store_true',
         help='Displays the grayscale scaled image')
-    parser.add_argument('-a', '--architecture', 
+    parser.add_argument('-a', '--classifier_architecture', 
         choices=CLASSIFIER_CONFIGS.keys(), default='cnn_two_layer',
         help=('Classifier architecture to be used, one of {}, default '
             'is cnn_two_layer'.format(list(CLASSIFIER_CONFIGS.keys()))))
+    parser.add_argument('-g', '--gan_architecture', 
+        choices=GAN_CONFIGS.keys(), default='advgan',
+        help=('GAN architecture to be used, one of {}, default '
+            'is advgan'.format(list(GAN_CONFIGS.keys()))))
     parser.add_argument('-c', '--checkpoint', default='tmp/model.ckpt',
         help=('File with classifier model checkpoint if the model has '
             'already been trained'))
@@ -60,14 +67,27 @@ def main():
     if args.display_image:
         display_normed_image(orig_input)
 
-    config = CLASSIFIER_CONFIGS[args.architecture]
+    classifier_config = CLASSIFIER_CONFIGS[args.classifier_architecture]
+    gan_config = GAN_CONFIGS[args.gan_architecture]
+
     with tf.Graph().as_default():
-        classifier = LetterClassifier(config)
-        saver = tf.train.Saver()
+        classifier = LetterClassifier(classifier_config)
+        discriminator = AdvDiscriminator(gan_config)
+        generator = AdvGenerator(gan_config, classifier, discriminator)
+        gan = AdvGAN(gan_config, classifier, discriminator, generator)
+
+        init = tf.global_variables_initializer()
+        saver = tf.train.Saver(var_list=tf.get_collection(
+            tf.GraphKeys.TRAINABLE_VARIABLES, scope='letter_classifier'))
         with tf.Session() as session:
+            session.run(init)
             saver.restore(session, args.checkpoint)
             predicted_class = classifier.eval(session, np.array([orig_input]))
             print('Predicted Class: {}'.format(predicted_class))
+
+            # DO THE THING
+
+
 
 
 
