@@ -29,16 +29,65 @@ class AdvGenerator(object):
                 { self.classifier.label_placeholder: target_batch })
         return feed_dict
 
+    def residual_layer(self, x, num_filters):
+        first_layer = tf.contrib.layers.conv2d(x, num_filters,
+            kernel_size=[3, 3],
+            stride=1,
+            padding='SAME',
+            activation_fn=tf.nn.relu)
+        second_layer = tf.contrib.layers.conv2d(first_layer, num_filters,
+            kernel_size=[3, 3],
+            stride=1,
+            padding='SAME')
+        return second_layer + x
+
     def add_prediction_op(self):
         # TODO: do I need a noise placeholder?
         # c3s1-8, d16, d32, r32, r32, r32, r32, u16, u8, c3s1-3
 
-        #conv_layer1 = 
+        inputs = tf.reshape(self.input_placeholder, 
+            [-1, self.config['img_height'], self.config['img_width'], 1])
+        conv_layer1 = tf.contrib.layers.conv2d(inputs, 8,
+            kernel_size=[3, 3],
+            stride=1,
+            padding='SAME',
+            activation_fn=tf.nn.relu)
+        conv_layer2 = tf.contrib.layers.conv2d(conv_layer1, 16,
+            kernel_size=[3, 3],
+            stride=2,
+            padding='SAME',
+            activation_fn=tf.nn.relu)
+        conv_layer3 = tf.contrib.layers.conv2d(conv_layer2, 32,
+            kernel_size=[3, 3],
+            stride=2,
+            padding='SAME',
+            activation_fn=tf.nn.relu)
+
+        res_layer1 = self.residual_layer(conv_layer3, 32)
+        res_layer2 = self.residual_layer(res_layer1, 32)
+        res_layer3 = self.residual_layer(res_layer2, 32)
+        res_layer4 = self.residual_layer(res_layer3, 32)
+
+        conv_layer4 = tf.contrib.layers.conv2d_transpose(res_layer4, 16,
+            kernel_size=[3, 3],
+            stride=2,
+            padding='SAME',
+            activation_fn=tf.nn.relu,
+            normalizer_fn=tf.contrib.layers.instance_norm)
+        conv_layer5 = tf.contrib.layers.conv2d_transpose(conv_layer4, 8,
+            kernel_size=[3, 3],
+            stride=2,
+            padding='SAME',
+            activation_fn=tf.nn.relu,
+            normalizer_fn=tf.contrib.layers.instance_norm)
+        conv_layer6 = tf.contrib.layers.conv2d(conv_layer5, 3,
+            kernel_size=[3, 3],
+            stride=1,
+            padding='SAME',
+            activation_fn=tf.nn.relu)
+        return conv_layer6
 
 
-
-
-        return self.input_placeholder * 0
 
     def add_loss_op(self, predicted):
         disc_orig = self.discriminator.predicted_orig
