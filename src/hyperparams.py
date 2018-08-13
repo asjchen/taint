@@ -43,11 +43,10 @@ GAN_CONFIGS = {
         'num_classes': 26,
         'epochs': 20,
         'learning_rate': 0.001,
-        'batch_size': 1000,
-        'log_per': 5000,
+        'batch_size': 10, # 1000
+        'log_per': 1, #5000
         'gan_constant': 1,
         'hinge_constant': 1,
-        'target_class': 12,
         'noise_bound': 0.3,
     }
 }

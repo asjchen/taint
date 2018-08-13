@@ -57,6 +57,8 @@ def main():
         choices=GAN_CONFIGS.keys(), default='advgan',
         help=('GAN architecture to be used, one of {}, default '
             'is advgan'.format(list(GAN_CONFIGS.keys()))))
+
+    # TODO: this will be changed to the GAN checkpoint
     parser.add_argument('-c', '--checkpoint', default='tmp/model.ckpt',
         help=('File with classifier model checkpoint if the model has '
             'already been trained'))
@@ -77,6 +79,8 @@ def main():
         gan = AdvGAN(gan_config, classifier, discriminator, generator)
 
         init = tf.global_variables_initializer()
+
+        # TODO: Change this to reflect the full GAN model
         saver = tf.train.Saver(var_list=tf.get_collection(
             tf.GraphKeys.TRAINABLE_VARIABLES, scope='letter_classifier'))
         with tf.Session() as session:
@@ -85,7 +89,6 @@ def main():
             predicted_class = classifier.eval(session, np.array([orig_input]))
             print('Predicted Class: {}'.format(predicted_class))
 
-            # DO THE THING
 
 
 

@@ -12,14 +12,20 @@ class AdvGenerator(object):
         self.add_placeholders()
 
         self.predicted_mask = self.add_prediction_op()
+        # self.discriminator.input_placeholder = self.input_placeholder
+        # self.discriminator.taint_placeholder = self.predicted_mask
         self.loss = self.add_loss_op(self.predicted_mask)
         self.train_op = self.add_training_op(self.loss)
 
     def add_placeholders(self):
         self.input_placeholder = tf.placeholder(tf.float64, 
             shape=(None, self.config['img_height'], self.config['img_width']))
-
-    def create_feed_dict(self, input_batch, target_batch=None):
+        self.disc_orig_placeholder = tf.placeholder(tf.float64, 
+            shape=(None, 1))
+        self.disc_gen_placeholder = tf.placeholder(tf.float64, 
+            shape=(None, 1))
+        
+    def create_feed_dict(self, input_batch, target_batch=None, disc_orig=None, disc_gen=None):
         feed_dict = { 
             self.input_placeholder: input_batch,
             self.classifier.input_placeholder: input_batch
@@ -27,6 +33,12 @@ class AdvGenerator(object):
         if target_batch is not None:
             feed_dict.update(
                 { self.classifier.label_placeholder: target_batch })
+        if disc_orig is not None:
+            feed_dict.update(
+                { self.disc_orig_placeholder: disc_orig })
+        if disc_gen is not None:
+            feed_dict.update(
+                { self.disc_gen_placeholder: disc_gen })
         return feed_dict
 
     def residual_layer(self, x, num_filters):
@@ -80,18 +92,19 @@ class AdvGenerator(object):
             padding='SAME',
             activation_fn=tf.nn.relu,
             normalizer_fn=tf.contrib.layers.instance_norm)
-        conv_layer6 = tf.contrib.layers.conv2d(conv_layer5, 3,
+        conv_layer6 = tf.contrib.layers.conv2d(conv_layer5, 1,
             kernel_size=[3, 3],
             stride=1,
             padding='SAME',
             activation_fn=tf.nn.relu)
-        return conv_layer6
-
-
+        return tf.reshape(conv_layer6, 
+            [-1, self.config['img_height'], self.config['img_width']])
 
     def add_loss_op(self, predicted):
-        disc_orig = self.discriminator.predicted_orig
-        disc_gen = self.discriminator.predicted_gen
+
+        disc_orig = self.disc_orig_placeholder
+        disc_gen = self.disc_gen_placeholder
+
         gan_loss = tf.log(disc_orig) + tf.log(1 - disc_gen)
         gan_loss = tf.reduce_mean(gan_loss)
 
