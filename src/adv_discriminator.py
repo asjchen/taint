@@ -32,6 +32,7 @@ class AdvDiscriminator(object):
         if add_mask:
             inputs += self.taint_placeholder
 
+        #with tf.variable_scope('discriminator'):
         # C8, C16, C32, FC
         inputs = tf.reshape(inputs, 
             [-1, self.config['img_height'], 

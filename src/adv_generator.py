@@ -5,6 +5,7 @@ import tensorflow as tf
 from letter_classifier import LetterClassifier
 
 class AdvGenerator(object):
+    # discriminator may not be needed
     def __init__(self, config, classifier, discriminator):
         self.config = config
         self.classifier = classifier
@@ -12,8 +13,6 @@ class AdvGenerator(object):
         self.add_placeholders()
 
         self.predicted_mask = self.add_prediction_op()
-        # self.discriminator.input_placeholder = self.input_placeholder
-        # self.discriminator.taint_placeholder = self.predicted_mask
         self.loss = self.add_loss_op(self.predicted_mask)
         self.train_op = self.add_training_op(self.loss)
 
@@ -24,11 +23,12 @@ class AdvGenerator(object):
             shape=(None, 1))
         self.disc_gen_placeholder = tf.placeholder(tf.float64, 
             shape=(None, 1))
+        self.classifier_loss_placeholder = tf.placeholder(tf.float64, 
+            shape=())
         
-    def create_feed_dict(self, input_batch, target_batch=None, disc_orig=None, disc_gen=None):
+    def create_feed_dict(self, input_batch, target_batch=None, disc_orig=None, disc_gen=None, classifier_loss=None):
         feed_dict = { 
-            self.input_placeholder: input_batch,
-            self.classifier.input_placeholder: input_batch
+            self.input_placeholder: input_batch
         }
         if target_batch is not None:
             feed_dict.update(
@@ -39,6 +39,9 @@ class AdvGenerator(object):
         if disc_gen is not None:
             feed_dict.update(
                 { self.disc_gen_placeholder: disc_gen })
+        if classifier_loss is not None:
+            feed_dict.update(
+                { self.classifier_loss_placeholder: classifier_loss })
         return feed_dict
 
     def residual_layer(self, x, num_filters):
@@ -59,6 +62,8 @@ class AdvGenerator(object):
 
         inputs = tf.reshape(self.input_placeholder, 
             [-1, self.config['img_height'], self.config['img_width'], 1])
+        
+        #with tf.variable_scope('generator'):
         conv_layer1 = tf.contrib.layers.conv2d(inputs, 8,
             kernel_size=[3, 3],
             stride=1,
@@ -108,7 +113,7 @@ class AdvGenerator(object):
         gan_loss = tf.log(disc_orig) + tf.log(1 - disc_gen)
         gan_loss = tf.reduce_mean(gan_loss)
 
-        adv_loss = self.classifier.loss
+        adv_loss = self.classifier_loss_placeholder
 
         gen_norm = tf.norm(predicted, axis=1)
         hinge_loss = tf.maximum(tf.cast(0.0, dtype=tf.float64), 
