@@ -19,10 +19,10 @@ class AdvGenerator(object):
     def add_placeholders(self):
         self.input_placeholder = tf.placeholder(tf.float64, 
             shape=(None, self.config['img_height'], self.config['img_width']))
-        self.disc_orig_placeholder = tf.placeholder(tf.float64, 
-            shape=(None, 1))
-        self.disc_gen_placeholder = tf.placeholder(tf.float64, 
-            shape=(None, 1))
+        # self.disc_orig_placeholder = tf.placeholder(tf.float64, 
+        #     shape=(None, 1))
+        # self.disc_gen_placeholder = tf.placeholder(tf.float64, 
+        #     shape=(None, 1))
         self.classifier_loss_placeholder = tf.placeholder(tf.float64, 
             shape=())
         
@@ -33,12 +33,12 @@ class AdvGenerator(object):
         if target_batch is not None:
             feed_dict.update(
                 { self.classifier.label_placeholder: target_batch })
-        if disc_orig is not None:
-            feed_dict.update(
-                { self.disc_orig_placeholder: disc_orig })
-        if disc_gen is not None:
-            feed_dict.update(
-                { self.disc_gen_placeholder: disc_gen })
+        # if disc_orig is not None:
+        #     feed_dict.update(
+        #         { self.disc_orig_placeholder: disc_orig })
+        # if disc_gen is not None:
+        #     feed_dict.update(
+        #         { self.disc_gen_placeholder: disc_gen })
         if classifier_loss is not None:
             feed_dict.update(
                 { self.classifier_loss_placeholder: classifier_loss })
@@ -107,22 +107,22 @@ class AdvGenerator(object):
 
     def add_loss_op(self, predicted):
 
-        disc_orig = self.disc_orig_placeholder
-        disc_gen = self.disc_gen_placeholder
+        # disc_orig = self.disc_orig_placeholder
+        # disc_gen = self.disc_gen_placeholder
 
-        gan_loss = tf.log(disc_orig) + tf.log(1 - disc_gen)
-        gan_loss = tf.reduce_mean(gan_loss)
+        # gan_loss = tf.log(disc_orig) + tf.log(1 - disc_gen)
+        # gan_loss = tf.reduce_mean(gan_loss)
 
         adv_loss = self.classifier_loss_placeholder
 
-        gen_norm = tf.norm(predicted, axis=1)
-        hinge_loss = tf.maximum(tf.cast(0.0, dtype=tf.float64), 
-            gen_norm - self.config['noise_bound'])
-        hinge_loss = tf.reduce_mean(hinge_loss)
+        # gen_norm = tf.norm(predicted, axis=1)
+        # hinge_loss = tf.maximum(tf.cast(0.0, dtype=tf.float64), 
+        #     gen_norm - self.config['noise_bound'])
+        # hinge_loss = tf.reduce_mean(hinge_loss)
 
         total_loss = adv_loss
-        total_loss += self.config['gan_constant'] * gan_loss
-        total_loss += self.config['hinge_constant'] * hinge_loss
+        # total_loss += self.config['gan_constant'] * gan_loss
+        # total_loss += self.config['hinge_constant'] * hinge_loss
         return total_loss
 
     def add_training_op(self, loss):

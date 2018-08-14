@@ -42,7 +42,7 @@ GAN_CONFIGS = {
         'img_width': 28,
         'num_classes': 26,
         'epochs': 20,
-        'learning_rate': 0.001,
+        'learning_rate': 0.000001,
         'batch_size': 10, # 1000
         'log_per': 1, #5000
         'gan_constant': 0.0,

@@ -6,8 +6,8 @@ import tensorflow as tf
 from letter_classifier import LetterClassifier
 from emnist import emnist_csv_to_xy
 from hyperparams import CLASSIFIER_CONFIGS, GAN_CONFIGS
-from adv_discriminator import AdvDiscriminator
-from adv_generator import AdvGenerator
+# from adv_discriminator import AdvDiscriminator
+# from adv_generator import AdvGenerator
 from advgan import AdvGAN
 
 def main():
@@ -39,10 +39,11 @@ def main():
 
     with tf.Graph().as_default():
         classifier = LetterClassifier(classifier_config)
-        discriminator = AdvDiscriminator(gan_config)
-        generator = AdvGenerator(gan_config, classifier, discriminator)
-        gan = AdvGAN(gan_config, classifier, discriminator, generator)
-
+        # discriminator = AdvDiscriminator(gan_config)
+        # generator = AdvGenerator(gan_config, classifier, discriminator)
+        # gan = AdvGAN(gan_config, classifier, discriminator, generator)
+        gan = AdvGAN(gan_config, classifier)
+        
         init = tf.global_variables_initializer()
         saver = tf.train.Saver(var_list=tf.get_collection(
             tf.GraphKeys.TRAINABLE_VARIABLES, scope='letter_classifier'))

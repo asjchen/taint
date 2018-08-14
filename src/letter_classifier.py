@@ -79,20 +79,7 @@ class LetterClassifier(object):
             feed_dict.update({ self.label_placeholder: label_batch })
         return feed_dict
 
-    def add_prediction_op(self):
-        """
-        Given the input placeholder, produces the tensor representing the 
-        model's predictions of the inputs' classes. The architectures
-        supported are the names in CLASSIFIER_CONFIGS in hyperparams.py
-
-        Args:
-            None
-
-        Returns:
-            A tensor/operation representing the logged probabilities for 
-            each class
-
-        """
+    def compute_prediction(self, inputs):
         input_layer = tf.reshape(self.input_placeholder, 
             [-1, self.config['img_height'], self.config['img_width'], 1])
 
@@ -131,6 +118,23 @@ class LetterClassifier(object):
                 raise Exception('Wrong config name for classifier.')
             
         return predicted
+
+    def add_prediction_op(self):
+        """
+        Given the input placeholder, produces the tensor representing the 
+        model's predictions of the inputs' classes. The architectures
+        supported are the names in CLASSIFIER_CONFIGS in hyperparams.py
+
+        Args:
+            None
+
+        Returns:
+            A tensor/operation representing the logged probabilities for 
+            each class
+
+        """
+        return self.compute_prediction(self.input_placeholder)
+        
 
     def add_loss_op(self, predicted):
         """
