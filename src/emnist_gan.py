@@ -43,7 +43,7 @@ def main():
         # generator = AdvGenerator(gan_config, classifier, discriminator)
         # gan = AdvGAN(gan_config, classifier, discriminator, generator)
         gan = AdvGAN(gan_config, classifier)
-        
+
         init = tf.global_variables_initializer()
         saver = tf.train.Saver(var_list=tf.get_collection(
             tf.GraphKeys.TRAINABLE_VARIABLES, scope='letter_classifier'))

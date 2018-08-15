@@ -83,7 +83,7 @@ class LetterClassifier(object):
         input_layer = tf.reshape(self.input_placeholder, 
             [-1, self.config['img_height'], self.config['img_width'], 1])
 
-        with tf.variable_scope('letter_classifier'):
+        with tf.variable_scope('letter_classifier', reuse=tf.AUTO_REUSE):
             if self.config['name'] == 'single_layer':
                 # Try 1: just a one-layer NN
                 input_flat = tf.reshape(input_layer, 

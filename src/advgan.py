@@ -20,11 +20,15 @@ class AdvGAN(object):
     def add_placeholders(self):
         self.input_placeholder = tf.placeholder(tf.float64, 
             shape=(None, self.config['img_height'], self.config['img_width']))
+        self.target_placeholder = tf.placeholder(tf.float64, 
+            shape=(None, self.config['num_classes']))
 
     def create_feed_dict(self, input_batch, target_batch):
         feed_dict = { 
             self.input_placeholder: input_batch,
-            self.target_placeholder: target_batch
+            self.target_placeholder: target_batch,
+            # This one serves no purpose
+            self.classifier.input_placeholder: input_batch
         }
         return feed_dict
 
@@ -92,7 +96,7 @@ class AdvGAN(object):
         if use_taint:
             inputs += taint
 
-        with tf.variable_scope('discriminator'):
+        with tf.variable_scope('discriminator', reuse=tf.AUTO_REUSE):
             # C8, C16, C32, FC
             inputs = tf.reshape(inputs, 
                 [-1, self.config['img_height'], 
@@ -125,22 +129,21 @@ class AdvGAN(object):
 
     def add_loss_op(self, taint, disc_orig, disc_gen):
         gan_loss = tf.log(disc_orig) + tf.log(1 - disc_gen)
-        gan_loss = tf.reduce_mean(gan_loss)
 
-        classifier_pred = self.classifier.compute_prediction(self, inputs)
+        classifier_inputs = taint + self.input_placeholder
+        classifier_pred = self.classifier.compute_prediction(classifier_inputs)
        
         adv_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
             logits=classifier_pred, labels=self.target_placeholder)
 
-        gen_norm = tf.norm(predicted, axis=1)
+        gen_norm = tf.norm(tf.norm(taint, axis=2), axis=1)
         hinge_loss = tf.maximum(tf.cast(0.0, dtype=tf.float64), 
             gen_norm - self.config['noise_bound'])
-        hinge_loss = tf.reduce_mean(hinge_loss)
 
         total_loss = adv_loss
         total_loss += self.config['gan_constant'] * gan_loss
         total_loss += self.config['hinge_constant'] * hinge_loss
-        return total_loss
+        return tf.reduce_mean(total_loss)
 
     def add_training_op(self, loss, minimize=True):
         optimizer = tf.train.AdamOptimizer(
@@ -156,6 +159,34 @@ class AdvGAN(object):
                 var_list=tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, 
                     scope='discriminator'))
         return train_op
+
+    def measure_performance(self, sess, test_X):
+        targets = np.zeros((test_X.shape[0], self.config['num_classes']))
+        targets[:, self.config['target_class']] = 1.0
+        feed_dict = self.create_feed_dict(test_X, targets)
+        taint, disc_orig, disc_gen, loss = sess.run(
+            [self.taint, self.disc_orig, self.disc_gen, self.loss], 
+                feed_dict=feed_dict)
+
+        classifier_feed_dict = self.classifier.create_feed_dict(
+            test_X + taint, label_batch=targets)
+        classifier_pred = sess.run(
+            [self.classifier.pred], feed_dict=classifier_feed_dict)[0]
+
+        target_correct = np.sum(np.argmax(classifier_pred, axis=1) == self.config['target_class'])
+        target_accuracy = target_correct / test_X.shape[0] 
+        print('Target class accuracy (for fooling classifier): {}'.format(target_accuracy))
+
+        gan_orig_accuracy = np.sum(np.argmax(disc_orig, axis=1) == 1) / test_X.shape[0] 
+        gan_gen_accuracy = np.sum(np.argmax(disc_gen, axis=1) == 0) / test_X.shape[0] 
+        print('GAN accuracy for untainted images: {}'.format(gan_orig_accuracy))
+        print('GAN accuracy for tainted images: {}'.format(gan_gen_accuracy))
+
+        taint_l2_norms = np.linalg.norm(np.linalg.norm(taint, axis=2), axis=1)
+        max_l2_norm = max(taint_l2_norms)
+        print('Maximum L2 norm of taint: {}'.format(max_l2_norm))
+        
+
 
     def run_epoch(self, sess, train_X, dev_X):
         for idx in range(0, train_X.shape[0], self.config['batch_size']):
@@ -178,13 +209,12 @@ class AdvGAN(object):
 
             _, loss = sess.run([self.gen_train_op, self.loss], 
                 feed_dict=feed_dict)
-
-            curr_log_cnt = idx // self.config['log_per'] 
-            prev_log_cnt = (idx - self.config['batch_size']) // self.config['log_per']
             
             if curr_log_cnt != prev_log_cnt:
                 print('Trained generator on {}/{} with current loss {}'.format(
                     idx, train_X.shape[0], loss))
+
+        self.measure_performance(sess, dev_X)
 
     def train(self, sess, train_dev_X, prop_train=0.8):
         indices = list(range(train_dev_X.shape[0]))
