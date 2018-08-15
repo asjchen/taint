@@ -35,7 +35,7 @@ CLASSIFIER_CONFIGS = {
     }
 }
 
-GAN_CONFIGS = {
+ADVERSARY_CONFIGS = {
     'advgan': {
         'name': 'advgan',
         'img_height': 28, 
@@ -48,5 +48,14 @@ GAN_CONFIGS = {
         'gan_constant': 1.0,
         'hinge_constant': 1.0,
         'noise_bound': 0.3,
+    },
+    'gradient_descent': {
+        'name': 'gradient_descent',
+        'img_height': 28, 
+        'img_width': 28,
+        'num_classes': 26,
+        'epochs': 300,
+        'learning_rate': 0.05,
+        'norm_constant': 0.1
     }
 }

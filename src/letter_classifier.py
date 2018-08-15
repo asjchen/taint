@@ -80,7 +80,7 @@ class LetterClassifier(object):
         return feed_dict
 
     def compute_prediction(self, inputs):
-        input_layer = tf.reshape(self.input_placeholder, 
+        input_layer = tf.reshape(inputs, 
             [-1, self.config['img_height'], self.config['img_width'], 1])
 
         with tf.variable_scope('letter_classifier', reuse=tf.AUTO_REUSE):
