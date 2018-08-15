@@ -1,6 +1,6 @@
 # Hyperparameter Configurations for Classifier
-# For information about the architectures, check add_prediction_op() in 
-# letter_classifier.LetterClassifier
+# For information about the classifier architectures, 
+# check add_prediction_op() in letter_classifier.LetterClassifier
 
 CLASSIFIER_CONFIGS = {
     # Try 1: basic single dense layer network
@@ -36,19 +36,6 @@ CLASSIFIER_CONFIGS = {
 }
 
 ADVERSARY_CONFIGS = {
-    'advgan': {
-        'name': 'advgan',
-        'img_height': 28, 
-        'img_width': 28,
-        'num_classes': 26,
-        'epochs': 20,
-        'learning_rate': 0.001,
-        'batch_size': 1000, # 1000
-        'log_per': 5000, #5000
-        'gan_constant': 1.0,
-        'hinge_constant': 1.0,
-        'noise_bound': 0.3,
-    },
     'gradient_descent': {
         'name': 'gradient_descent',
         'img_height': 28, 

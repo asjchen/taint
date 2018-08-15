@@ -1,6 +1,6 @@
 # Processes a raw image to resemble the emnist format
 # Then, identifies the class of the resulting image
-# Finally, runs the AdvGAN algorithm to modify the image for a targerted attack
+# Finally, runs an adversary to modify the image for a targerted attack
 
 import argparse
 import numpy as np
@@ -12,9 +12,6 @@ import tensorflow as tf
 from letter_classifier import LetterClassifier
 from hyperparams import CLASSIFIER_CONFIGS, ADVERSARY_CONFIGS
 from grad_adv import GradAdv
-# from adv_discriminator import AdvDiscriminator
-# from adv_generator import AdvGenerator
-# from advgan import AdvGAN
 
 def color_to_grayscale(image_filename):
     gray_img = Image.open(image_filename).convert('LA')
@@ -54,11 +51,10 @@ def main():
         choices=CLASSIFIER_CONFIGS.keys(), default='cnn_two_layer',
         help=('Classifier architecture to be used, one of {}, default '
             'is cnn_two_layer'.format(list(CLASSIFIER_CONFIGS.keys()))))
-    # parser.add_argument('-a', '--adversary_architecture', 
-    #     choices=ADVERSARY_CONFIGS.keys(), default='gradient_descent',
-    #     help=('Adversary architecture to be used, one of {}, default '
-    #         'is gradient_descent'.format(list(ADVERSARY_CONFIGS.keys()))))
-
+    parser.add_argument('-a', '--adversary_architecture', 
+        choices=ADVERSARY_CONFIGS.keys(), default='gradient_descent',
+        help=('Adversary architecture to be used, one of {}, default '
+            'is gradient_descent'.format(list(ADVERSARY_CONFIGS.keys()))))
     parser.add_argument('-p', '--checkpoint', default='tmp/model.ckpt',
         help=('File with classifier model checkpoint if the model has '
             'already been trained'))
@@ -91,33 +87,6 @@ def main():
             tainted_image = adversary.create_tainted_image(session)
         display_normed_image(orig_input)
         display_normed_image(tainted_image)
-
-
-
-
-    # gan_config = ADVERSARY_CONFIGS[args.gan_architecture]
-
-    # with tf.Graph().as_default():
-    #     classifier = LetterClassifier(classifier_config)
-    #     discriminator = AdvDiscriminator(gan_config)
-    #     generator = AdvGenerator(gan_config, classifier, discriminator)
-    #     gan = AdvGAN(gan_config, classifier, discriminator, generator)
-
-    #     init = tf.global_variables_initializer()
-
-    #     # TODO: Change this to reflect the full GAN model
-    #     saver = tf.train.Saver(var_list=tf.get_collection(
-    #         tf.GraphKeys.TRAINABLE_VARIABLES, scope='letter_classifier'))
-    #     with tf.Session() as session:
-    #         session.run(init)
-    #         saver.restore(session, args.checkpoint)
-    #         predicted_class = classifier.eval(session, np.array([orig_input]))
-    #         print('Predicted Class: {}'.format(predicted_class))
-
-
-
-
-
 
 if __name__ == '__main__':
     main()

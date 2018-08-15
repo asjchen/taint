@@ -3,16 +3,6 @@
 import numpy as np
 import tensorflow as tf
 
-"""
-img_height
-img_width
-target_class
-num_classes
-epochs
-norm_constant
-learning_rate
-"""
-
 class GradAdv(object):
     def __init__(self, config, classifier, orig_image):
         self.config = config
