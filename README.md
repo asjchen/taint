@@ -70,13 +70,10 @@ with a Generative Adversarial Network
 
 
 # TODO
-* Implement AdvGAN detailed in 
-[_Generating Adversarial Examples with Adversarial Networks_](https://arxiv.org/pdf/1801.02610.pdf)
-    * Implement discriminator
-    * Implement generator
-    * Implement training with GAN
+* Output the appropriate images
+* Fix cross entropy in AdvGAN and test for NaN losses
 * Add dropout to classifier
-* Further refine classifier architecture to improve its accuracy
+* Further refine classifier architecture to improve its accuracy (and perhaps dropout)
 * Clean up code -- there's similarities between LetterClassifier and GAN
 * Comment functions more thoroughly
 
