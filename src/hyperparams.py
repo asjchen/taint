@@ -43,6 +43,6 @@ ADVERSARY_CONFIGS = {
         'num_classes': 26,
         'epochs': 300,
         'learning_rate': 0.05,
-        'norm_constant': 0.1
+        'norm_constant': 0.04
     }
 }

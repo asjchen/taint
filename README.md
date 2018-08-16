@@ -23,16 +23,16 @@ way we perceive, or _classify_, the scenario in our heads. However, an AI
 may not be able to pick up on these nuances, which may cause conflicts between
 AI and people.
 
-This project is devoted to finding adversarial examples for letters of the 
-alphabet. Suppose we have an accurate classifier of those letters. If we 
-have correctly identified images of the letters "G", "O", "O", and "D", 
-then we can find adversarial examples that the model classifies as "E", "V",
-"I", and "L". This process is an example of a _targeted attack_ on the 
-classifier; we're trying to fool the classifier into thinking that our image
-is the letter G (rather than just trying to make the classifier wrong in 
-general). Since in this case the dataset is public knowledge, we use a 
-semi-whitebox attack (simpler than a black-box attack, but perhaps less in the 
-spirit of adversarial attacks).
+This project is devoted to finding adversarial examples for images of 
+handwritten letters of the alphabet. Suppose we have an accurate classifier 
+of those letters. If we have correctly identified images of the letters "G", 
+"O", "O", and "D", then we can find adversarial examples that the model 
+classifies as "E", "V", "I", and "L". This process is an example of a 
+_targeted attack_ on the classifier; we're trying to fool the classifier into 
+thinking that our image is the letter G (rather than just trying to make the 
+classifier wrong in general). Since in this case the dataset is public 
+knowledge, we use a semi-whitebox attack (simpler than a black-box attack, but 
+perhaps less in the spirit of adversarial attacks).
 
 This project represents how machines may not have the same understanding of 
 concepts such as "good" and "evil" as us; small changes to a situation that 

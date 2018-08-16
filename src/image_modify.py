@@ -8,6 +8,7 @@ from PIL import Image
 import matplotlib as mpl
 mpl.use('TkAgg')
 import matplotlib.pyplot as plt
+import os
 import tensorflow as tf
 from letter_classifier import LetterClassifier
 from hyperparams import CLASSIFIER_CONFIGS, ADVERSARY_CONFIGS
@@ -34,10 +35,15 @@ def process_color_image(image_filename, final_height=28, final_width=28):
 
 # Displays a NumPy array (with all elements <= 1) as a grayscale picture
 def display_normed_image(normed_np):
-    scaled_np = 256 * normed_np
+    scaled_np = 255.0 * normed_np
     plt.imshow(scaled_np.transpose())
     plt.show()
     plt.close()
+
+def export_gray_image(gray_np_img, orig_letter, new_letter, out_filename):
+    scaled_gray_np_img = 256 * gray_np_img.transpose()
+    gray_img = Image.fromarray(scaled_gray_np_img)
+    gray_img.convert('RGB').save(out_filename)
 
 def main():
     parser = argparse.ArgumentParser(description=('Takes an image and a '
@@ -60,6 +66,8 @@ def main():
             'already been trained'))
     parser.add_argument('-t', '--target_letter', default='m',
         help='Lowercase letter that serves as target class')
+    parser.add_argument('-o', '--output_directory', default='bin',
+        help='Directory to place tainted image in')
     args = parser.parse_args()
     
     # Original input for the classifier, not for this program
@@ -83,10 +91,18 @@ def main():
             session.run(init)
             saver.restore(session, args.checkpoint)
             predicted_class = classifier.eval(session, np.array([orig_input]))
+            predicted_letter = chr(ord('a') + predicted_class)
             print('Predicted Class: {}'.format(predicted_class))
             tainted_image = adversary.create_tainted_image(session)
-        display_normed_image(orig_input)
-        display_normed_image(tainted_image)
+        
+        # TODO: make a new output directory if it doesn't exist
+        # TODO: filename should have the architecture used
+        out_filename = os.path.join(args.output_directory, 
+            '{}_to_{}.png'.format(predicted_letter, args.target_letter))
+        export_gray_image(tainted_image, predicted_letter, 
+            args.target_letter, out_filename)
+
+
 
 if __name__ == '__main__':
     main()
