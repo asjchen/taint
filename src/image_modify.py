@@ -46,6 +46,7 @@ def export_gray_image(gray_np_img, orig_letter, new_letter, out_filename):
     gray_img.convert('RGB').save(out_filename)
 
 def main():
+    # TODO: consolidate the arguments
     parser = argparse.ArgumentParser(description=('Takes an image and a '
         'classifier model and outputs an adversarial example'))
     parser.add_argument('image_filename', 
@@ -95,8 +96,8 @@ def main():
             print('Predicted Class: {}'.format(predicted_class))
             tainted_image = adversary.create_tainted_image(session)
         
-        # TODO: make a new output directory if it doesn't exist
-        # TODO: filename should have the architecture used
+        if not os.path.exists(args.output_directory):
+            os.makedirs(args.output_directory)
         out_filename = os.path.join(args.output_directory, 
             '{}_to_{}.png'.format(predicted_letter, args.target_letter))
         export_gray_image(tainted_image, predicted_letter, 

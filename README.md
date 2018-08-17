@@ -1,5 +1,5 @@
 # Taint
-## Andy Chen
+by Andy Chen
 
 ![Good Intentions](images/good_intentions.png)
 
@@ -92,6 +92,10 @@ but is identified as the target letter when fed into the letter classifier.
 
 
 # TODO
+* Consolidate argparse arguments
+* Remove unnecessary libraries
+* lines should be sub-80
+
 * Put a README in src/ to describe the flags
 * Further refine classifier architecture to improve its accuracy (and perhaps dropout)
 * Clean up code -- there's similarities between LetterClassifier and GAN

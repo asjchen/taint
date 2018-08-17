@@ -33,7 +33,6 @@ class GradAdv(object):
                 self.config['num_classes']))
         adv_loss = tf.reduce_mean(adv_loss)
         total_loss = adv_loss + self.config['norm_constant'] * (taint_norm ** 2)
-        
         return total_loss
 
     def add_train_op(self, loss):
