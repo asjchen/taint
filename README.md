@@ -1,6 +1,8 @@
 # Taint
 ## Andy Chen
 
+![Good Intentions](images/good_intentions.png)
+
 ## Introduction
 
 This is an exploratory project primarily inspired by two ideas:
@@ -12,6 +14,9 @@ to a human, the image looks roughly the same), the classifier might actually
 think that the new image has an owl instead! These tweaked pictures are called 
 _adversarial examples_, and they demonstrate how unstable certain machine 
 learning models can be.
+
+[INSERT DIAGRAM OF CLASSIFICATION]
+
 * Human-created concepts are also fragile; the boundary between opposing 
 concepts such as "good" and "evil" is a fine one. For instance, imagine 
 we saw Bryce offer to pay for Clay's beer in a convenience store; at first
@@ -23,6 +28,11 @@ way we perceive, or _classify_, the scenario in our heads. However, an AI
 may not be able to pick up on these nuances, which may cause conflicts between
 AI and people.
 
+This project represents how machines may not have the same understanding of 
+concepts such as "good" and "evil" as us; small changes to a situation that 
+don't affect our big picture understanding may completely change the machine's 
+understanding of the situation.
+
 This project is devoted to finding adversarial examples for images of 
 handwritten letters of the alphabet. Suppose we have an accurate classifier 
 of those letters. If we have correctly identified images of the letters "G", 
@@ -30,14 +40,14 @@ of those letters. If we have correctly identified images of the letters "G",
 classifies as "E", "V", "I", and "L". This process is an example of a 
 _targeted attack_ on the classifier; we're trying to fool the classifier into 
 thinking that our image is the letter G (rather than just trying to make the 
-classifier wrong in general). Since in this case the dataset is public 
-knowledge, we use a semi-whitebox attack (simpler than a black-box attack, but 
-perhaps less in the spirit of adversarial attacks).
+classifier wrong in general). 
 
-This project represents how machines may not have the same understanding of 
-concepts such as "good" and "evil" as us; small changes to a situation that 
-don't affect our big picture understanding may completely change the machine's 
-understanding of the situation.
+[INSERT DIAGRAM of ATTACK]
+
+For simplicity, we use a white-box attack, meaning that we can see the 
+mechanics of the classifier when creating adversarial examples. (In a real 
+world setting, we would probably use a black-box attack, which means we can't
+see how the classifier is making its predictions.)
 
 
 ## Requirements
@@ -51,7 +61,8 @@ First, install the required Python 3 libraries with pip:
 pip install -r requirements.txt
 ```
 Then, download the EMNIST letters dataset; visit the Kaggle dataset page and
-download the `emnist-letters-train.csv` and `emnist-letters-train.csv` files. 
+download the `emnist-letters-train.csv` and `emnist-letters-test.csv` files.
+Place them into the repository root directory.
 
 Now, since the classifier and GAN should train on disjoint datasets, we split
 the data by running:
@@ -59,20 +70,29 @@ the data by running:
 python src/split_data.py emnist-letters-train.csv 
 ```
 You should then see two new files `emnist-letters-train-classifier.csv` and
-`emnist-letters-train-gan.csv`
+`emnist-letters-train-gan.csv` in the same repository root directory.
 
 Now, from the repository root directory, run the following command:
 ```
 python src/emnist.py emnist-letters-train-classifier.csv emnist-letters-test.csv
 ```
 This will train an alphabet classifier model, which we will attempt to "fool"
-with a Generative Adversarial Network
+with adversarial examples. Start with an image of a letter of the alphabet,
+such as the following:
+
+![Example D](images/good_d.png)
+
+(This image will be converted to grayscale and scaled to a 28x28 square.) Then,
+run the following command.
+```
+python src/image_modify.py <path to original image> -t <target letter> 
+```
+This will produce an image in `bin/` that looks similar to the original image,
+but is identified as the target letter when fed into the letter classifier.
 
 
 # TODO
-* Output the appropriate images
-* Fix cross entropy in AdvGAN and test for NaN losses
-* Add dropout to classifier
+* Put a README in src/ to describe the flags
 * Further refine classifier architecture to improve its accuracy (and perhaps dropout)
 * Clean up code -- there's similarities between LetterClassifier and GAN
 * Comment functions more thoroughly
