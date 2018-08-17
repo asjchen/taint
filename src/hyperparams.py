@@ -42,12 +42,12 @@ ADVERSARY_CONFIGS = {
         'img_width': 28,
         'num_classes': 26,
         'epochs': 20,
-        'learning_rate': 0.001,
-        'batch_size': 10, # 1000
-        'log_per': 1, #5000
-        'gan_constant': 1.0,
-        'hinge_constant': 1.0,
-        'noise_bound': 0.3,
+        'learning_rate': 0.0000001,
+        'batch_size': 1000, 
+        'log_per': 5000,
+        'gan_constant': 0.5,
+        'hinge_constant': 0.3,
+        'noise_bound': 2.0,
     },
     'gradient_descent': {
         'name': 'gradient_descent',

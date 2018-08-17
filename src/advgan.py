@@ -22,13 +22,16 @@ class AdvGAN(object):
             shape=(None, self.config['img_height'], self.config['img_width']))
         self.noise_placeholder = tf.placeholder(tf.float64, 
             shape=(None, self.config['img_height'], self.config['img_width']))
+        self.ones_placeholder = tf.placeholder(tf.float64, 
+            shape=(None, 2))
         self.target_placeholder = tf.placeholder(tf.float64, 
             shape=(None, self.config['num_classes']))
 
-    def create_feed_dict(self, input_batch, noise_batch, target_batch):
+    def create_feed_dict(self, input_batch, noise_batch, ones_batch, target_batch):
         feed_dict = { 
             self.input_placeholder: input_batch,
             self.noise_placeholder: noise_batch,
+            self.ones_placeholder: ones_batch,
             self.target_placeholder: target_batch,
             # This one serves no purpose
             self.classifier.input_placeholder: input_batch
@@ -125,13 +128,17 @@ class AdvGAN(object):
                 normalizer_fn=tf.contrib.layers.instance_norm)
 
             predictions = tf.layers.dense(tf.contrib.layers.flatten(conv_layer3), 
-                self.config['num_classes'], activation=tf.nn.leaky_relu)
+                2, activation=tf.nn.leaky_relu)
         return predictions
 
     def add_loss_op(self, taint, disc_orig, disc_gen):
 
-        # TODO: change this to cross entropy
-        gan_loss = tf.log(disc_orig) + tf.log(1 - disc_gen)
+        # gan_loss = tf.log(disc_orig) + tf.log(1 - disc_gen)
+        gan_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
+            logits=disc_orig, labels=self.ones_placeholder)
+        gan_loss += tf.nn.softmax_cross_entropy_with_logits_v2(
+            logits=disc_gen, labels=(1 - self.ones_placeholder))
+        gan_loss /= 2
 
         classifier_inputs = tf.clip_by_value(taint + self.input_placeholder, 0, 1)
         classifier_pred = self.classifier.compute_prediction(classifier_inputs)
@@ -166,9 +173,11 @@ class AdvGAN(object):
     def measure_performance(self, sess, test_X):
         noise = np.random.normal(size=(test_X.shape[0], 
             self.config['img_height'], self.config['img_width']))
+        one_hots = np.zeros((test_X.shape[0], 2))
+        one_hots[:, 0] = 1.0
         targets = np.zeros((test_X.shape[0], self.config['num_classes']))
         targets[:, self.config['target_class']] = 1.0
-        feed_dict = self.create_feed_dict(test_X, noise, targets)
+        feed_dict = self.create_feed_dict(test_X, noise, one_hots, targets)
         taint, disc_orig, disc_gen, loss = sess.run(
             [self.taint, self.disc_orig, self.disc_gen, self.loss], 
                 feed_dict=feed_dict)
@@ -198,11 +207,13 @@ class AdvGAN(object):
             train_X_batch = train_X[idx: idx + self.config['batch_size'], :]
             noise_batch = np.random.normal(size=(train_X_batch.shape[0],
                 self.config['img_height'], self.config['img_width']))
+            one_hots_batch = np.zeros((train_X_batch.shape[0], 2))
+            one_hots_batch[:, 0] = 1.0
             target_batch = np.zeros(
                 (train_X_batch.shape[0], self.config['num_classes']))
             target_batch[:, self.config['target_class']] = 1.0
 
-            feed_dict = self.create_feed_dict(train_X_batch, noise_batch, target_batch)
+            feed_dict = self.create_feed_dict(train_X_batch, noise_batch, one_hots_batch, target_batch)
             
             _, loss = sess.run([self.disc_train_op, self.loss], 
                 feed_dict=feed_dict)
