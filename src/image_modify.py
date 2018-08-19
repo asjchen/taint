@@ -2,7 +2,7 @@
 # Then, identifies the class of the resulting image
 # Finally, runs an adversary to modify the image for a targerted attack
 
-import argparse
+import arg_utils
 import numpy as np
 from PIL import Image
 import matplotlib as mpl
@@ -40,35 +40,24 @@ def display_normed_image(normed_np):
     plt.show()
     plt.close()
 
+def make_output_directory(output_directory):
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
+
+def make_output_image_filename(output_directory, 
+    predicted_letter, target_letter):
+    out_filename = os.path.join(output_directory, 
+        '{}_to_{}.png'.format(predicted_letter, target_letter))
+    return out_filename
+
 def export_gray_image(gray_np_img, orig_letter, new_letter, out_filename):
     scaled_gray_np_img = 256 * gray_np_img.transpose()
     gray_img = Image.fromarray(scaled_gray_np_img)
     gray_img.convert('RGB').save(out_filename)
+    print('Find the tainted image at {}'.format(out_filename))
 
 def main():
-    # TODO: consolidate the arguments
-    parser = argparse.ArgumentParser(description=('Takes an image and a '
-        'classifier model and outputs an adversarial example'))
-    parser.add_argument('image_filename', 
-        help=('Filename of the (color) input image; the letter should be '
-            'white on black background'))
-    parser.add_argument('-d', '--display_image', action='store_true',
-        help='Displays the grayscale scaled image')
-    parser.add_argument('-c', '--classifier_architecture', 
-        choices=CLASSIFIER_CONFIGS.keys(), default='cnn_two_layer',
-        help=('Classifier architecture to be used, one of {}, default '
-            'is cnn_two_layer'.format(list(CLASSIFIER_CONFIGS.keys()))))
-    parser.add_argument('-a', '--adversary_architecture', 
-        choices=ADVERSARY_CONFIGS.keys(), default='gradient_descent',
-        help=('Adversary architecture to be used, one of {}, default '
-            'is gradient_descent'.format(list(ADVERSARY_CONFIGS.keys()))))
-    parser.add_argument('-p', '--checkpoint', default='tmp/model.ckpt',
-        help=('File with classifier model checkpoint if the model has '
-            'already been trained'))
-    parser.add_argument('-t', '--target_letter', default='m',
-        help='Lowercase letter that serves as target class')
-    parser.add_argument('-o', '--output_directory', default='bin',
-        help='Directory to place tainted image in')
+    parser = arg_utils.make_image_adversary_parser()
     args = parser.parse_args()
     
     # Original input for the classifier, not for this program
@@ -76,9 +65,11 @@ def main():
     if args.display_image:
         display_normed_image(orig_input)
 
+    # Choose config dictionaries
     classifier_config = CLASSIFIER_CONFIGS[args.classifier_architecture]
     adv_config = ADVERSARY_CONFIGS['gradient_descent']
 
+    # Update adv_config with the numerical target class
     target_class = ord(args.target_letter) - ord('a')
     adv_config.update({ 'target_class': target_class })
 
@@ -96,14 +87,13 @@ def main():
             print('Predicted Class: {}'.format(predicted_class))
             tainted_image = adversary.create_tainted_image(session)
         
-        if not os.path.exists(args.output_directory):
-            os.makedirs(args.output_directory)
-        out_filename = os.path.join(args.output_directory, 
-            '{}_to_{}.png'.format(predicted_letter, args.target_letter))
-        export_gray_image(tainted_image, predicted_letter, 
-            args.target_letter, out_filename)
-
-
+    if args.display_image:
+        display_normed_image(tainted_image)
+    make_output_directory(args.output_directory)
+    out_filename = make_output_image_filename(args.output_directory, 
+        predicted_letter, args.target_letter)
+    export_gray_image(tainted_image, predicted_letter, 
+        args.target_letter, out_filename)
 
 if __name__ == '__main__':
     main()

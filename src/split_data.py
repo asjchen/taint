@@ -1,7 +1,7 @@
 # Splits the training data: one half will be for the letter classifier itself,
 # and the other half will be be for the GAN
 
-import argparse
+import arg_utils
 import numpy as np
 import pandas as pd
 
@@ -28,18 +28,12 @@ def write_data(np_data, filename):
         pd_data.to_csv(f, index=False, header=False)
 
 def main():
-    parser = argparse.ArgumentParser(description=('Splits the training data '
-        'in two so that classifier and GAN training use disjoint datasets'))
-    parser.add_argument('combined_data_filename', 
-        help='Filename containing the combined CSV data')
+    parser = arg_utils.make_split_data_parser()
     args = parser.parse_args()
-
     new_filenames = produce_new_filenames(args.combined_data_filename)
     data_halves = split_data(args.combined_data_filename)
-
     for i in range(2):
         write_data(data_halves[i], new_filenames[i])
-
 
 if __name__ == '__main__':
     main()

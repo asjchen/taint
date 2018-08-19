@@ -74,7 +74,7 @@ You should then see two new files `emnist-letters-train-classifier.csv` and
 
 Now, from the repository root directory, run the following command:
 ```
-python src/emnist.py emnist-letters-train-classifier.csv emnist-letters-test.csv
+python src/train_classifier.py emnist-letters-train-classifier.csv emnist-letters-test.csv
 ```
 This will train an alphabet classifier model, which we will attempt to "fool"
 with adversarial examples. Start with an image of a letter of the alphabet,
@@ -92,7 +92,9 @@ but is identified as the target letter when fed into the letter classifier.
 
 
 # TODO
-* Consolidate argparse arguments
+* change so that tensorflow checkpoints show up more often?
+* change top comments
+* make diagrams for classification
 * Remove unnecessary libraries
 * lines should be sub-80
 
