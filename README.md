@@ -87,6 +87,7 @@ but is identified as the target letter when fed into the letter classifier.
 
 # TODO
 * change so that tensorflow checkpoints show up more often?
+* explain the hyperparams
 * change top comments
 * make diagrams for classification
 * Remove unnecessary libraries

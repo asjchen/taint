@@ -1,4 +1,4 @@
-# Processes a raw image to resemble the emnist format
+# Processes a raw image to resemble the EMNIST format (28x28 grayscale)
 # Then, identifies the class of the resulting image
 # Finally, runs an adversary to modify the image for a targerted attack
 

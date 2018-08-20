@@ -21,7 +21,8 @@ class LetterClassifier(object):
         Args:
             config: a dictionary containing hyperparameters and settings such
             as img_height, img_width, num_classes (26 for just identifying
-            letters), epochs, learning_rate, batch_size, etc.
+            letters), epochs, learning_rate, batch_size, etc. Check 
+            hyperparams.py to see the necessary hyperparameters.
 
         Returns:
             None
@@ -170,7 +171,9 @@ class LetterClassifier(object):
         """
         optimizer = tf.train.AdamOptimizer(
             learning_rate=self.config['learning_rate'])
-        train_op = optimizer.minimize(loss)
+        train_op = optimizer.minimize(loss,
+            var_list=tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, 
+                scope='letter_classifier'))
         return train_op
 
     def measure_performance(self, sess, test_X, test_y):
