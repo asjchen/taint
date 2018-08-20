@@ -1,4 +1,4 @@
-# Produces a trained classifier on the EMNIST handwritten alphabet letters
+# Utilities for working with EMNIST-specific data
 
 import numpy as np
 import pandas as pd 

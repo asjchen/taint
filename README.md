@@ -49,6 +49,8 @@ mechanics of the classifier when creating adversarial examples. (In a real
 world setting, we would probably use a black-box attack, which means we can't
 see how the classifier is making its predictions.)
 
+{TODO: finish this description to talk about gradient descent}
+
 
 ## Requirements
 * Python 3.6 (currently, Tensorflow does not support later versions of Python)
@@ -64,17 +66,9 @@ Then, download the EMNIST letters dataset; visit the Kaggle dataset page and
 download the `emnist-letters-train.csv` and `emnist-letters-test.csv` files.
 Place them into the repository root directory.
 
-Now, since the classifier and GAN should train on disjoint datasets, we split
-the data by running:
-```
-python src/split_data.py emnist-letters-train.csv 
-```
-You should then see two new files `emnist-letters-train-classifier.csv` and
-`emnist-letters-train-gan.csv` in the same repository root directory.
-
 Now, from the repository root directory, run the following command:
 ```
-python src/train_classifier.py emnist-letters-train-classifier.csv emnist-letters-test.csv
+python src/train_classifier.py emnist-letters-train.csv emnist-letters-test.csv
 ```
 This will train an alphabet classifier model, which we will attempt to "fool"
 with adversarial examples. Start with an image of a letter of the alphabet,

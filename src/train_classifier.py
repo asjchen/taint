@@ -6,12 +6,13 @@ import pandas as pd
 import tensorflow as tf
 from letter_classifier import LetterClassifier
 from hyperparams import CLASSIFIER_CONFIGS
-from emnist import emnist_csv_to_xy
+from emnist_utils import emnist_csv_to_xy
 
 def main():
     """
-    Takes shell inputs, processes the EMNIST CSV data, and trains
-    an image classifier on that data.
+    Takes shell inputs, processes the EMNIST CSV data, and trains an image 
+    classifier on that data. Prints training progress, as well as the test
+    accuracy.
 
     Args:
         None

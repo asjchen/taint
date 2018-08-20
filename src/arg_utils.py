@@ -4,22 +4,6 @@
 import argparse
 from hyperparams import CLASSIFIER_CONFIGS, ADVERSARY_CONFIGS
 
-def add_combined_dataset(parser):
-    """
-    Adds the required parser argument representing the filename of a CSV
-    containing the overall training dataset. Most likely, this filename ends 
-    in emnist-letters-train.csv, which should have 785 columns.
-
-    Args:
-        parser: an argparse.ArgumentParser object
-
-    Returns:
-        None
-
-    """
-    parser.add_argument('combined_data_filename', 
-        help='Filename containing the combined CSV data')
-
 def add_emnist_datasets(parser):
     """
     Adds the required parser arguments representing the training and testing
@@ -132,23 +116,6 @@ def add_output_args(parser):
     """
     parser.add_argument('-o', '--output_directory', default='bin',
         help='Directory to place tainted image in')
-
-def make_split_data_parser():
-    """
-    Constructs the shell argument parser (takes in inputs) to split an EMNIST 
-    letters training dataset.
-
-    Args:
-        None
-
-    Returns:
-        parser: an argparse.ArgumentParser object to parser command line args
-
-    """
-    parser = argparse.ArgumentParser(description=('Splits the training data '
-        'in two so that classifier and GAN training use disjoint datasets'))
-    add_combined_dataset(parser)
-    return parser
 
 def make_train_classifier_parser():
     """

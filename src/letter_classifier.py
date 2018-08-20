@@ -1,6 +1,6 @@
 # Constructs a model for classifying alphabet letters
 # Given the image training data, we produce a classifier trained with
-# CNN architecture
+# deep learning architecture
 
 import random
 import numpy as np
