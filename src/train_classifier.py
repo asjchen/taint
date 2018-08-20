@@ -2,7 +2,6 @@
 
 import arg_utils
 import numpy as np
-import pandas as pd 
 import tensorflow as tf
 from letter_classifier import LetterClassifier
 from hyperparams import CLASSIFIER_CONFIGS

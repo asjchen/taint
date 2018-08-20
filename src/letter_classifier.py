@@ -89,8 +89,10 @@ class LetterClassifier(object):
                 # Try 1: just a one-layer NN
                 input_flat = tf.reshape(input_layer, 
                     [-1, self.config['img_height'] * self.config['img_width']])
-                predicted = tf.layers.dense(input_flat, self.config['num_classes'],
-                    activation=self.activation_map[self.config['output_activation']])
+                predicted = tf.layers.dense(input_flat, 
+                    self.config['num_classes'],
+                    activation=self.activation_map[
+                    self.config['output_activation']])
             
             elif self.config['name'] == 'cnn_two_layer':
                 # Try 2: basic CNN
@@ -110,10 +112,13 @@ class LetterClassifier(object):
                     activation=self.config['activation'])
                 pool2 = tf.layers.max_pooling2d(inputs=conv2, 
                     pool_size=self.config['pool_size'], strides=2)
-                pool2_flat = tf.reshape(pool2, [-1, self.config['pool2_output_dim']])
+                pool2_flat = tf.reshape(pool2, 
+                    [-1, self.config['pool2_output_dim']])
                 dense = tf.layers.dense(inputs=pool2_flat, 
-                    units=self.config['dense_dim'], activation=self.config['activation'])
-                predicted = tf.layers.dense(inputs=dense, units=self.config['num_classes'])
+                    units=self.config['dense_dim'], 
+                    activation=self.config['activation'])
+                predicted = tf.layers.dense(inputs=dense, 
+                    units=self.config['num_classes'])
             
             else:
                 raise Exception('Wrong config name for classifier.')
@@ -236,8 +241,9 @@ class LetterClassifier(object):
             feed = self.create_feed_dict(train_X_batch, 
                 label_batch=train_y_batch)
             _, loss = sess.run([self.train_op, self.loss], feed_dict=feed)
-            curr_log_cnt = idx // self.config['log_per'] 
-            prev_log_cnt = (idx - self.config['batch_size']) // self.config['log_per']
+            curr_log_cnt = idx // self.config['log_per']
+            prev_idx = idx - self.config['batch_size'] 
+            prev_log_cnt = prev_idx // self.config['log_per']
             if curr_log_cnt != prev_log_cnt:
                 print('Trained on {}/{} with current loss {}'.format(
                     idx, train_X.shape[0], loss))

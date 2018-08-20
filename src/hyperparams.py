@@ -1,4 +1,4 @@
-# Hyperparameter Configurations for Classifier
+# Hyperparameter configurations for the classifier and the adversary
 # For information about the classifier architectures, 
 # check add_prediction_op() in letter_classifier.LetterClassifier
 

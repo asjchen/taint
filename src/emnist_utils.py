@@ -2,7 +2,6 @@
 
 import numpy as np
 import pandas as pd 
-from hyperparams import CLASSIFIER_CONFIGS
 
 def emnist_csv_to_xy(file_stream, img_height=28, img_width=28, num_classes=26):
     """

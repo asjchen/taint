@@ -84,19 +84,11 @@ python src/image_modify.py <path to original image> -t <target letter>
 This will produce an image in `bin/` that looks similar to the original image,
 but is identified as the target letter when fed into the letter classifier.
 
+NOTE: for either `train_classifier.py` or `image_modify.py`, you can run the 
+command with the `-h` or `--help` flag to see all the possible flags and read 
+what each argument means.
+
 
 # TODO
-* change so that tensorflow checkpoints show up more often?
 * explain the hyperparams
-* change top comments
 * make diagrams for classification
-* Remove unnecessary libraries
-* lines should be sub-80
-
-* Put a README in src/ to describe the flags
-* Further refine classifier architecture to improve its accuracy (and perhaps dropout)
-* Clean up code -- there's similarities between LetterClassifier and GAN
-* Comment functions more thoroughly
-
-
-
