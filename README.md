@@ -42,7 +42,7 @@ _targeted attack_ on the classifier; we're trying to fool the classifier into
 thinking that our image is the letter G (rather than just trying to make the 
 classifier wrong in general). 
 
-[INSERT DIAGRAM of ATTACK]
+![Adversary](images/Taint_Adversary.png)
 
 For simplicity, we use a white-box attack, meaning that we can see the 
 mechanics of the classifier when creating adversarial examples. (In a real 
@@ -74,7 +74,7 @@ This will train an alphabet classifier model, which we will attempt to "fool"
 with adversarial examples. Start with an image of a letter of the alphabet,
 such as the following:
 
-![Example D](images/good_d.png)
+![Example G](images/good_g.png)
 
 (This image will be converted to grayscale and scaled to a 28x28 square.) Then,
 run the following command.
