@@ -15,7 +15,7 @@ think that the new image has an owl instead! These tweaked pictures are called
 _adversarial examples_, and they demonstrate how unstable certain machine 
 learning models can be.
 
-[INSERT DIAGRAM OF CLASSIFICATION]
+![Classifier](images/Letter_Classifier.png)
 
 * Human-created concepts are also fragile; the boundary between opposing 
 concepts such as "good" and "evil" is a fine one. For instance, imagine 
