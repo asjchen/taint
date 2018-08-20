@@ -86,6 +86,3 @@ NOTE: for either `train_classifier.py` or `image_modify.py`, you can run the
 command with the `-h` or `--help` flag to see all the possible flags and read 
 what each argument means.
 
-
-# TODO
-* make diagrams for classification
