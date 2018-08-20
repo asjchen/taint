@@ -90,5 +90,4 @@ what each argument means.
 
 
 # TODO
-* explain the hyperparams
 * make diagrams for classification
