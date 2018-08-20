@@ -49,8 +49,6 @@ mechanics of the classifier when creating adversarial examples. (In a real
 world setting, we would probably use a black-box attack, which means we can't
 see how the classifier is making its predictions.)
 
-{TODO: finish this description to talk about gradient descent}
-
 
 ## Requirements
 * Python 3.6 (currently, Tensorflow does not support later versions of Python)
