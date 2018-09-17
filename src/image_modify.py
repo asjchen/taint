@@ -184,8 +184,8 @@ def main():
     adv_config = ADVERSARY_CONFIGS[args.adversary_architecture]
 
     # Check that the image dimensions are consistent between the configs
-    assert classifier_config['img_height'] == adversary_config['img_height']
-    assert classifier_config['img_width'] == adversary_config['img_width']
+    assert classifier_config['img_height'] == adv_config['img_height']
+    assert classifier_config['img_width'] == adv_config['img_width']
 
     orig_input = process_color_image(args.image_filename,
         classifier_config['img_height'], classifier_config['img_width'])
