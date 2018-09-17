@@ -43,6 +43,6 @@ ADVERSARY_CONFIGS = {
         'num_classes': 26, # number of possible output (letter) classes 
         'epochs': 300, # number of training epochs
         'learning_rate': 0.05, # learning rate of the Adam optimizer
-        'norm_constant': 0.04 # multiplier for the taint norm in the loss
+        'norm_constant': 0.1 # multiplier for the taint norm in the loss
     }
 }

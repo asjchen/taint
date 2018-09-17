@@ -142,7 +142,7 @@ class GradAdv(object):
             print('Loss: {}'.format(loss))
         taint, loss = sess.run([self.taint, self.loss], feed_dict=feed_dict)
         taint_norm = np.linalg.norm(taint)
-        adv_loss = loss - taint_norm * self.config['norm_constant']
+        adv_loss = loss - (taint_norm ** 2) * self.config['norm_constant']
         adv_prob = np.exp(-adv_loss)
 
         print('\nFinal Norm: {}'.format(taint_norm))
